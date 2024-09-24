@@ -1,31 +1,27 @@
 import express from "express";
+import conectaDatabase from "./config/bdConnect.js";
+import livro from "./models/livros.js";
+
+const conexao = await conectaDatabase();
+
+conexao.on("error", (erro) => {
+    console.error("erro de conexão", erro);
+})
+
+conexao.once("open", () => {
+    console.log("conexão com banco funcionando");
+})
 
 const app = express();
 app.use(express.json());
-
-const livros = [
-    {
-        id: 1,
-        titulo: "Senhor dos anéis"
-    },
-    {
-        id: 2,
-        titulo: "jogos vorazes"
-    }
-]
-
-function buscaLivro(id){
-    return livros.findIndex(livro => {
-        return livro.id === Number(id);
-    })
-}
 
 app.get("/", (req, resp) => {
     resp.status(200).send("Curso de Node.js");
 })
 
-app.get("/livros", (req, resp) => {
-    resp.status(200).json(livros);
+app.get("/livros", async (req, resp) => {
+    const listaLivros = await livro.find({});
+    resp.status(200).json(listaLivros);
 })
 
 app.get("/livros/:id", (req, resp) => {
